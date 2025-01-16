@@ -2,7 +2,7 @@ package br.com.gabrielsucena.orders.domain.enums;
 
 public enum Status {
 
-    PLACED,
+    CREATED,
     CANCELLED,
     PAID,
     NOT_AUTHORIZED,

@@ -2,7 +2,6 @@ package br.com.gabrielsucena.payments.domain.entities;
 
 import br.com.gabrielsucena.payments.domain.enums.Status;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -38,7 +37,7 @@ public class Payment {
     private Status status;
 
     @NotNull
-    private Long orderId;
+    private String orderId;
 
     @NotNull
     private Long paymentMethodId;
@@ -46,7 +45,7 @@ public class Payment {
     public Payment() {
     }
 
-    public Payment(Long id, BigDecimal value, String name, String cardNumber, String expiryDate, String code, Status status, Long orderId, Long paymentMethodId) {
+    public Payment(Long id, BigDecimal value, String name, String cardNumber, String expiryDate, String code, Status status, String orderId, Long paymentMethodId) {
         this.id = id;
         this.value = value;
         this.name = name;
@@ -114,11 +113,11 @@ public class Payment {
         this.status = status;
     }
 
-    public @NotNull Long getOrderId() {
+    public @NotNull String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(@NotNull Long orderId) {
+    public void setOrderId(@NotNull String orderId) {
         this.orderId = orderId;
     }
 

@@ -3,8 +3,9 @@ package br.com.gabrielsucena.orders.service;
 import br.com.gabrielsucena.orders.domain.entities.Order;
 import br.com.gabrielsucena.orders.domain.enums.Status;
 import br.com.gabrielsucena.orders.dtos.OrderDto;
-import br.com.gabrielsucena.orders.dtos.OrderItemsDto;
+import br.com.gabrielsucena.orders.dtos.PaymentDto;
 import br.com.gabrielsucena.orders.dtos.StatusDto;
+import br.com.gabrielsucena.orders.httpClients.PaymentsClient;
 import br.com.gabrielsucena.orders.mapper.OrderMapper;
 import br.com.gabrielsucena.orders.repository.OrderRepository;
 import jakarta.validation.constraints.NotNull;
@@ -23,9 +24,12 @@ public class OrderService {
 
     private final OrderMapper orderMapper;
 
-    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper) {
+    private final PaymentsClient paymentsClient;
+
+    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper, PaymentsClient paymentsClient) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
+        this.paymentsClient = paymentsClient;
     }
 
     public List<OrderDto> getAllOrders(){
@@ -45,10 +49,13 @@ public class OrderService {
         Order order = orderMapper.toOrder(orderDto);
 
         order.setDateTime(LocalDateTime.now());
-        order.setStatus(Status.PLACED);
+        order.setStatus(Status.CREATED);
         order.setTotal(getTotal(orderDto));
 
         orderRepository.save(order);
+
+        // Create payment synchronously
+        paymentsClient.createPayment(new PaymentDto(order.getTotal(), Status.CREATED, order.getId(), 1L));
 
         return orderMapper.toOrderDto(order);
     }

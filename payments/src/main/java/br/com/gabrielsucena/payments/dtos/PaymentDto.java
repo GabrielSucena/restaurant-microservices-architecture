@@ -18,7 +18,7 @@ public record PaymentDto(
         String expiryDate,
         String code,
         Status status,
-        Long orderId,
+        String orderId,
         Long paymentMethodId
 ) {
 }

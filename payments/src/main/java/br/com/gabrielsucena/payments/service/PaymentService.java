@@ -3,12 +3,15 @@ package br.com.gabrielsucena.payments.service;
 import br.com.gabrielsucena.payments.domain.entities.Payment;
 import br.com.gabrielsucena.payments.domain.enums.Status;
 import br.com.gabrielsucena.payments.dtos.PaymentDto;
+import br.com.gabrielsucena.payments.httpClients.OrdersClient;
 import br.com.gabrielsucena.payments.mapper.PaymentMapper;
 import br.com.gabrielsucena.payments.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -17,9 +20,12 @@ public class PaymentService {
 
     private final PaymentMapper paymentMapper;
 
-    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
+    private final OrdersClient ordersClient;
+
+    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, OrdersClient ordersClient) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
+        this.ordersClient = ordersClient;
     }
 
     public Page<PaymentDto> getAllPayments(Pageable pageable){
@@ -52,6 +58,17 @@ public class PaymentService {
 
     public void deletePayment(Long id){
         paymentRepository.deleteById(id);
+    }
+
+    public void confirmPayment(Long id){
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(EntityNotFoundException::new);
+
+        payment.setStatus(Status.CONFIRMED);
+        paymentRepository.save(payment);
+
+        ordersClient.confirmPayment(payment.getOrderId());
+
     }
 
 }

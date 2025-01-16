@@ -48,7 +48,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDto);
     }
 
-    @PatchMapping("/{id}/paid")
+    @PutMapping("/{id}/paid")
     public ResponseEntity<Void> approvePaymentOrder(@PathVariable String id){
         orderService.approvePaymentOrder(id);
 

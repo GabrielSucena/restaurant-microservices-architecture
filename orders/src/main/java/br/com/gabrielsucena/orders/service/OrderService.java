@@ -3,12 +3,12 @@ package br.com.gabrielsucena.orders.service;
 import br.com.gabrielsucena.orders.domain.entities.Order;
 import br.com.gabrielsucena.orders.domain.enums.Status;
 import br.com.gabrielsucena.orders.dtos.OrderDto;
-import br.com.gabrielsucena.orders.dtos.PaymentDto;
 import br.com.gabrielsucena.orders.dtos.StatusDto;
-import br.com.gabrielsucena.orders.httpClients.PaymentsClient;
 import br.com.gabrielsucena.orders.mapper.OrderMapper;
 import br.com.gabrielsucena.orders.repository.OrderRepository;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,12 +24,12 @@ public class OrderService {
 
     private final OrderMapper orderMapper;
 
-    private final PaymentsClient paymentsClient;
+    private final RabbitTemplate rabbitTemplate;
 
-    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper, PaymentsClient paymentsClient) {
+    public OrderService(OrderRepository orderRepository, OrderMapper orderMapper, RabbitTemplate rabbitTemplate) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
-        this.paymentsClient = paymentsClient;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public List<OrderDto> getAllOrders(){
@@ -54,10 +54,12 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // Create payment synchronously
-        paymentsClient.createPayment(new PaymentDto(order.getTotal(), Status.CREATED, order.getId(), 1L));
+        OrderDto mapperOrderDto =  orderMapper.toOrderDto(order);
 
-        return orderMapper.toOrderDto(order);
+        // Create payment asynchronously - RabbitMQ
+        rabbitTemplate.convertAndSend("payments.pending", mapperOrderDto);
+
+        return mapperOrderDto;
     }
 
     public OrderDto updateStatus(String id, StatusDto statusDto){

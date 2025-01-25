@@ -7,11 +7,10 @@ import br.com.gabrielsucena.payments.httpClients.OrdersClient;
 import br.com.gabrielsucena.payments.mapper.PaymentMapper;
 import br.com.gabrielsucena.payments.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -22,7 +21,7 @@ public class PaymentService {
 
     private final OrdersClient ordersClient;
 
-    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, OrdersClient ordersClient) {
+    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, OrdersClient ordersClient, RabbitTemplate rabbitTemplate) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
         this.ordersClient = ordersClient;

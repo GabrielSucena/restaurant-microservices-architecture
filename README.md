@@ -56,6 +56,17 @@ The project consists of the following services:
 - Docker and Docker Compose 🐳
 - MongoDB 🍃
 - PostgreSQL 🐘
+
+### Running the Project ▶️
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/GabrielSucena/restaurant-microservices-architecture.git
+2. Navigate to the project directory:
+   ```bash
+   cd restaurant-microservices-architecture
+3. Build and start the services using Docker Compose:
+   ```bash
+   docker-compose up --build
   
 ### Accessing Services 🌍
 - **Eureka Server**: `http://localhost:8761`
